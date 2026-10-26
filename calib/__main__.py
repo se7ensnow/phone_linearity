@@ -135,6 +135,37 @@ def run_apply(args):
     print(mean_corrected)
 
 
+def run_level(args):
+    model = AccelerometerCalibrator.load(args.params)
+    df = load_recording(args.recording)
+    result = process_file(df)
+    m = result["mean"]
+    a = model.apply(m)
+
+    def angles(v):
+        pitch = np.degrees(np.arctan2(v[1], v[2]))   # top edge raised
+        roll = np.degrees(np.arctan2(v[0], v[2]))    # right edge raised
+        tilt = np.degrees(np.arccos(v[2] / np.linalg.norm(v)))
+        return pitch, roll, tilt
+
+    p_raw, r_raw, t_raw = angles(m)
+    p_cal, r_cal, t_cal = angles(a)
+
+    print(f"Recording: {args.recording}")
+    print(f"Rows used: {result['rows_used']} of {result['rows_file']}")
+    if result["bad_windows"]:
+        print("WARNING: the phone moved during the recording:", result["bad_windows"])
+    print(f"Raw measured vector   : {m.round(3)}")
+    print(f"Calibrated vector     : {a.round(3)}")
+    print(f"Pitch (top edge up)   : raw {p_raw:6.2f} deg   calibrated {p_cal:6.2f} deg")
+    print(f"Roll (right edge up)  : raw {r_raw:6.2f} deg   calibrated {r_cal:6.2f} deg")
+    print(f"Total tilt from flat  : raw {t_raw:6.2f} deg   calibrated {t_cal:6.2f} deg")
+
+    if args.h_cm is not None and args.l_cm is not None:
+        ruler = np.degrees(np.arctan(args.h_cm / args.l_cm))
+        print(f"Ruler angle (tan theta = h/L): {ruler:.2f} deg (uncertain by about 2 deg)")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Phone accelerometer calibration"
@@ -173,6 +204,12 @@ def main():
         default=Path("results/corrected.csv")
     )
 
+
+    level_parser = subparsers.add_parser("level")
+    level_parser.add_argument("recording", type=Path)
+    level_parser.add_argument("--h-cm", type=float, default=None)
+    level_parser.add_argument("--l-cm", type=float, default=None)
+
     args = parser.parse_args()
 
     if args.command == "fit":
@@ -181,6 +218,8 @@ def main():
         run_evaluate(args)
     elif args.command == "apply":
         run_apply(args)
+    elif args.command == "level":
+        run_level(args)
 
 
 if __name__ == "__main__":
