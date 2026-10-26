@@ -213,6 +213,46 @@ def run_ramp(args):
     print("Mean error after         :", round(results["err_cal_ms2"].mean(), 4), "m/s²")
 
 
+RANK_SETS = [
+    ("all six poses", ["screen_up", "screen_down", "left_edge_down",
+                       "right_edge_down", "bottom_edge_down", "top_edge_down"]),
+    ("only screen up + screen down", ["screen_up", "screen_down"]),
+    ("only the four edge poses", ["left_edge_down", "right_edge_down",
+                                  "bottom_edge_down", "top_edge_down"]),
+    ("up, left, bottom (3 poses)", ["screen_up", "left_edge_down", "bottom_edge_down"]),
+    ("up, down, left, bottom", ["screen_up", "screen_down", "left_edge_down",
+                                "bottom_edge_down"]),
+    ("up, left, right, bottom", ["screen_up", "left_edge_down", "right_edge_down",
+                                 "bottom_edge_down"]),
+]
+
+
+def run_rank(args):
+    """Rank of the design matrix for different sets of poses."""
+    true_a = {name: vec for name, vec in POSES.items()}
+    rows = []
+    for label, names in RANK_SETS:
+        A = np.array([true_a[n] for n in names], dtype=float)
+        X = np.column_stack([A, np.ones(len(A))])      # rows [a_x, a_y, a_z, 1]
+        rank = int(np.linalg.matrix_rank(X))
+        sv_min = np.linalg.svd(X, compute_uv=False).min()
+        rows.append({
+            "pose set": label,
+            "poses": len(names),
+            "rank": rank,
+            "smallest singular value": sv_min,
+            "enough (rank 4)?": "yes" if rank == 4 else "NO",
+        })
+
+    results = pd.DataFrame(rows).set_index("pose set")
+    print("Rank of the design matrix [a_x, a_y, a_z, 1] for different pose sets:")
+    print(results.round(4).to_string())
+
+    X_all = np.column_stack([np.array(list(POSES.values()), dtype=float), np.ones(6)])
+    print("\nAll six poses: condition number =", round(np.linalg.cond(X_all), 3))
+    print("S and b are determined uniquely only when the rank is 4.")
+
+
 
 
 def main():
@@ -253,6 +293,7 @@ def main():
         default=Path("results/corrected.csv")
     )
 
+    subparsers.add_parser("rank")
     subparsers.add_parser("ramp")
     level_parser = subparsers.add_parser("level")
     level_parser.add_argument("recording", type=Path)
@@ -271,6 +312,8 @@ def main():
         run_level(args)
     elif args.command == "ramp":
         run_ramp(args)
+    elif args.command == "rank":
+        run_rank(args)
 
 
 if __name__ == "__main__":
