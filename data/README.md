@@ -1,29 +1,44 @@
-
 # Accelerometer Data
 
-Measurements were recorded using the phyphox app in **Acceleration with g** mode.
+Measurements were recorded with the phyphox app, experiment **Acceleration with g** (gravity included).
 
-**Device:** [Phone model]
+**Device:** Xiaomi Redmi Note 13 Pro+ 5G (Android). The same phone, **with its case on**, was used for all recordings.
 
-**Measurement protocol:**
-- Two sessions of six static orientations: screen up/down, top/bottom/left/right edge down.
-- Four tilt measurements using a raised surface:
-  - h = 6 cm, L = 16 cm, angle = 22°
-  - h = 7 cm, L = 15 cm, angle = 27.5°
-  - h = 8 cm, L = 14.5 cm, angle = 33.5°
-  - h = 9 cm, L = 14 cm, angle = 40°
-- One additional recording with strong shaking to investigate the model's limitations.
-- Approximately 20 seconds per recording.
+## Recordings (17 files, all recorded on 2026-10-20)
 
-**CSV columns:**
-- `Time (s)` — time in seconds.
-- `Acceleration x (m/s^2)` — X-axis acceleration.
-- `Acceleration y (m/s^2)` — Y-axis acceleration.
-- `Acceleration z (m/s^2)` — Z-axis acceleration.
-- `Absolute acceleration (m/s^2)` — acceleration magnitude.
+- **12 static poses**: two sessions of six orientations (screen up, screen down, and left, right, bottom and top edge down). About 20 s per recording, phone not touched while recording.
+- **4 tilt recordings**: the phone leaned against a wall, screen facing up, top edge always raised. h = height on the wall and L = distance along the floor, both measured with a tape (cm). The tilt angle is computed from tan θ = h/L.
+- **1 limit experiment**: random shaking by hand, about 21 s (`Random.csv`).
 
-All acceleration values are in m/s² and include gravity.
+| File | h (cm) | L (cm) | Angle from h and L |
+|---|---|---|---|
+| `h=6,l=16,angle=22.csv` | 6 | 16 | 20.6° |
+| `h=7,l=15,angle=27.5.csv` | 7 | 15 | 25.0° |
+| `h=8,l=14.5,angle=33.5.csv` | 8 | 14.5 | 28.9° |
+| `h=9,l=14,angle=40.csv` | 9 | 14 | 32.7° |
 
-Original recordings are stored unchanged in `data/raw/`. Recording metadata is stored in `data/recordings.csv`.
+The angles typed in these file names do not match h and L. The file names were left unchanged because raw data must not be edited. **The angle computed from h and L is the one used in the analysis.** The tape measurement is uncertain by about ±2.2° to ±2.4°.
 
-The first static session is used for calibration, while the second session and tilt measurements are used for validation.
+## File names
+
+Files are named `<pose>.csv` for session 1 and `<pose>_2.csv` for session 2 (for example `screen_up.csv` and `screen_up_2.csv`). This is not the `team_pose_session` pattern suggested in the project description.
+
+## CSV columns
+
+- `Time (s)`: time in seconds.
+- `Acceleration x (m/s^2)`: x-axis acceleration.
+- `Acceleration y (m/s^2)`: y-axis acceleration.
+- `Acceleration z (m/s^2)`: z-axis acceleration.
+- `Absolute acceleration (m/s^2)`: magnitude, computed by phyphox. It is not used for fitting.
+
+All values are in m/s² and include gravity.
+
+## Axis convention
+
+With the phone screen up: x points to the right of the screen, y toward the top edge, z out of the screen. At rest, the phone reads +g along the direction that points up. So screen up gives a = (0, 0, +g).
+
+## Use of the data
+
+Session 1 is used to fit the model. Session 2 and the tilt recordings are used for validation. The shaking recording is used to show where the model fails.
+
+Original recordings are stored unchanged in `data/raw/`. Metadata for each file is in `data/recordings.csv`.
