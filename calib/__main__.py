@@ -165,6 +165,55 @@ def run_level(args):
         ruler = np.degrees(np.arctan(args.h_cm / args.l_cm))
         print(f"Ruler angle (tan theta = h/L): {ruler:.2f} deg (uncertain by about 2 deg)")
 
+RAMP_FILES = [
+    ("h=6,l=16,angle=22.csv", 6, 16),
+    ("h=7,l=15,angle=27.5.csv", 7, 15),
+    ("h=8,l=14.5,angle=33.5.csv", 8, 14.5),
+    ("h=9,l=14,angle=40.csv", 9, 14),
+]
+
+
+def run_ramp(args):
+    """Wall tilt test: angle from tan(theta) = h/L, compared with the phone."""
+    model = AccelerometerCalibrator.load(args.params)
+    rows = []
+    for name, h, L in RAMP_FILES:
+        m = process_file(load_recording(args.data_dir / name))["mean"]
+        a = model.apply(m)
+
+        theta = np.degrees(np.arctan(h / L))
+        th = np.radians(theta)
+        a_true = np.array([0.0, G * np.sin(th), G * np.cos(th)])
+
+        # uncertainty from a tape error of 0.5 cm on h and on L
+        hi = np.degrees(np.arctan((h + 0.5) / (L - 0.5)))
+        lo = np.degrees(np.arctan((h - 0.5) / (L + 0.5)))
+
+        raw_angle = np.degrees(np.arctan2(m[1], m[2]))
+        cal_angle = np.degrees(np.arctan2(a[1], a[2]))
+        rows.append({
+            "file": f"h{h:g}_L{L:g}",
+            "tape_deg": theta,
+            "+-deg": (hi - lo) / 2,
+            "raw_deg": raw_angle,
+            "cal_deg": cal_angle,
+            "err_raw_deg": raw_angle - theta,
+            "err_cal_deg": cal_angle - theta,
+            "err_raw_ms2": np.linalg.norm(m - a_true),
+            "err_cal_ms2": np.linalg.norm(a - a_true),
+        })
+
+    results = pd.DataFrame(rows).set_index("file")
+    print("Wall tilt test (angle from tan theta = h/L):")
+    print(results.round(3).to_string())
+    print()
+    print("Mean |angle error| before:", round(results["err_raw_deg"].abs().mean(), 3), "deg")
+    print("Mean |angle error| after :", round(results["err_cal_deg"].abs().mean(), 3), "deg")
+    print("Mean error before        :", round(results["err_raw_ms2"].mean(), 4), "m/s²")
+    print("Mean error after         :", round(results["err_cal_ms2"].mean(), 4), "m/s²")
+
+
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -204,7 +253,7 @@ def main():
         default=Path("results/corrected.csv")
     )
 
-
+    subparsers.add_parser("ramp")
     level_parser = subparsers.add_parser("level")
     level_parser.add_argument("recording", type=Path)
     level_parser.add_argument("--h-cm", type=float, default=None)
@@ -220,6 +269,8 @@ def main():
         run_apply(args)
     elif args.command == "level":
         run_level(args)
+    elif args.command == "ramp":
+        run_ramp(args)
 
 
 if __name__ == "__main__":
