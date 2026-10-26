@@ -1,0 +1,18 @@
+file_name,pose_or_angle,session,h_cm,L_cm,date,notes
+screen_up.csv,screen_up,1,,,2026-10-20,
+screen_down.csv,screen_down,1,,,2026-10-20,
+left_edge_down.csv,left_edge_down,1,,,2026-10-20,
+right_edge_down.csv,right_edge_down,1,,,2026-10-20,
+bottom_edge_down.csv,bottom_edge_down,1,,,2026-10-20,
+top_edge_down.csv,top_edge_down,1,,,2026-10-20,
+screen_up_2.csv,screen_up,2,,,2026-10-20,
+screen_down_2.csv,screen_down,2,,,2026-10-20,
+left_edge_down_2.csv,left_edge_down,2,,,2026-10-20,
+right_edge_down_2.csv,right_edge_down,2,,,2026-10-20,
+bottom_edge_down_2.csv,bottom_edge_down,2,,,2026-10-20,
+top_edge_down_2.csv,top_edge_down,2,,,2026-10-20,
+"h=6,l=16,angle=22.csv",wall tilt,,6,16,2026-10-20,"file name says 22 deg; h and L give 20.6 deg (tan theta = h/L)"
+"h=7,l=15,angle=27.5.csv",wall tilt,,7,15,2026-10-20,"file name says 27.5 deg; h and L give 25.0 deg"
+"h=8,l=14.5,angle=33.5.csv",wall tilt,,8,14.5,2026-10-20,"file name says 33.5 deg; h and L give 28.9 deg"
+"h=9,l=14,angle=40.csv",wall tilt,,9,14,2026-10-20,"file name says 40 deg; h and L give 32.7 deg"
+Random.csv,shaking (limit experiment),,,,2026-10-20,random shaking by hand for about 21 s
