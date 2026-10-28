@@ -94,6 +94,38 @@ The command applies the calibration to each acceleration measurement and saves t
 python -m calib --params results/model.json apply data/raw/screen_up_2.csv --output results/screen_up_corrected.csv
 ```
 
+### Level (demo)
+
+Print the tilt angle of a new recording, raw and calibrated. Optionally compare it with a ruler angle from h and L (tan θ = h/L).
+
+```bash
+python -m calib level RECORDING [--h-cm H] [--l-cm L]
+```
+
+**Example:**
+
+```bash
+python -m calib level "data/raw/h=6,l=16,angle=22.csv" --h-cm 6 --l-cm 16
+```
+
+### Ramp
+
+Wall tilt test on the four tilt recordings. The true angle comes from tan θ = h/L, with an uncertainty of about ±2.2° to ±2.4° from a ±0.5 cm tape error. Prints raw and calibrated angle errors in degrees and m/s².
+
+```bash
+python -m calib ramp
+```
+
+### Rank
+
+Rank of the design matrix for different sets of poses. S and b are determined uniquely only when the rank is 4. The table shows which pose sets are not enough.
+
+```bash
+python -m calib rank
+```
+
+
+
 ### Tests
 
 Run all automated tests using pytest.
