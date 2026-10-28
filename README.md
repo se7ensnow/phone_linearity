@@ -95,7 +95,7 @@ python -m calib --params results/model.json apply data/raw/screen_up_2.csv --out
 ```
 
 ### Level (demo)
-
+Add `--pose screen_up` (or any other pose name) to also print the error before and after calibration, assuming the phone lay in that pose.
 Print the tilt angle of a new recording, raw and calibrated. Optionally compare it with a ruler angle from h and L (tan θ = h/L).
 
 ```bash
