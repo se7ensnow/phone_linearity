@@ -165,6 +165,17 @@ def run_level(args):
         ruler = np.degrees(np.arctan(args.h_cm / args.l_cm))
         print(f"Ruler angle (tan theta = h/L): {ruler:.2f} deg (uncertain by about 2 deg)")
 
+    
+    if args.pose is not None:
+        true_a = np.array(POSES[args.pose], dtype=float)
+        err_before = acceleration_errors(m, true_a)
+        err_after = acceleration_errors(a, true_a)
+        ang_before = tilt_angle_error_deg(m, true_a)[0]
+        ang_after = tilt_angle_error_deg(a, true_a)[0]
+        print(f"\nTrue pose: {args.pose}, true vector {true_a.round(3)}")
+        print(f"Error before calibration: {err_before:.4f} m/s²   tilt error {ang_before:.2f} deg")
+        print(f"Error after calibration : {err_after:.4f} m/s²   tilt error {ang_after:.2f} deg")
+
 RAMP_FILES = [
     ("h=6,l=16,angle=22.csv", 6, 16),
     ("h=7,l=15,angle=27.5.csv", 7, 15),
@@ -299,6 +310,7 @@ def main():
     level_parser.add_argument("recording", type=Path)
     level_parser.add_argument("--h-cm", type=float, default=None)
     level_parser.add_argument("--l-cm", type=float, default=None)
+    level_parser.add_argument("--pose", choices=list(POSES), default=None)
 
     args = parser.parse_args()
 
